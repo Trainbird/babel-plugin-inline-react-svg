@@ -29,7 +29,7 @@ function validateAndFix(opts) {
   if (Array.isArray(opts.plugins) && opts.plugins.length === 0) return;
 
   // track whether its defined in opts.plugins
-  const state = essentialPlugins.reduce((p, c) => Object.assign(p, { [c]: false }), {});
+  const state = essentialPlugins.reduce((p, c) => Object.assign(p, {[c]: false}), {});
 
   opts.plugins.forEach((p) => {
     if (typeof p === 'string' && isEssentialPlugin(p)) {
@@ -51,14 +51,14 @@ function validateAndFix(opts) {
     .forEach(key => opts.plugins.push(key));
 }
 
-export default function optimize(content, opts = {}) {
+export default function optimize(content, opts = {}, extra) {
   validateAndFix(opts);
   const svgo = new Svgo(opts);
 
   // Svgo isn't _really_ async, it however is async enough to require some handling:
   let returnValue;
   try {
-    sync(svgo.optimize(content)
+    sync(svgo.optimize(content, extra)
       .then((response) => {
         if (response.error) {
           throw response.error;
