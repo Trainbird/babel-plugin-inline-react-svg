@@ -26,7 +26,7 @@ const MyComponent = () => <CloseSvg />;
 ## Installation
 
 ```
-npm install --save-dev babel-plugin-inline-react-svg
+npm install --save-dev babel-plugin-react-inline-svg
 ```
 
 ## Usage
