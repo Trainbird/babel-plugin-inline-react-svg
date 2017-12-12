@@ -1,4 +1,7 @@
-# babel-plugin-inline-react-svg
+# babel-plugin-react-inline-svg
+
+_Hint_: This is a fork of kesne's [babel-plugin-inline-react-svg](https://github.com/kesne/babel-plugin-inline-react-svg). It exists to get SVGO up to date (version 1.0.3) and enable the newest plugins.
+When the original repo updates svgo, this one will probably be put down again as it only serves us for that matter.
 
 Transforms imports to SVG files into React Components, and optimizes the SVGs with [SVGO](https://github.com/svg/svgo/).
 
