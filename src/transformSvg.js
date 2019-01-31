@@ -7,46 +7,48 @@ import { namespaceToCamel, hyphenToCamel } from './camelize';
 import cssToObj from './cssToObj';
 
 export default t => ({
-  JSXAttribute(path) {
-    if (t.isJSXNamespacedName(path.node.name)) {
+  JSXAttribute({ node }) {
+    const { name: originalName } = node;
+    if (t.isJSXNamespacedName(originalName)) {
       // converts
       // <svg xmlns:xlink="asdf">
       // to
       // <svg xmlnsXlink="asdf">
-      path.node.name = t.jSXIdentifier(
-        namespaceToCamel(path.node.name.namespace.name, path.node.name.name.name)
-      );
-    } else if (t.isJSXIdentifier(path.node.name)) {
+      node.name = t.jSXIdentifier(namespaceToCamel(
+        originalName.namespace.name,
+        originalName.name.name,
+      ));
+    } else if (t.isJSXIdentifier(originalName)) {
       // converts
       // <tag class="blah blah1"/>
       // to
       // <tag className="blah blah1"/>
-      if (path.node.name.name === 'class') {
-        path.node.name.name = 'className';
+      if (originalName.name === 'class') {
+        originalName.name = 'className';
       }
 
       // converts
       // <tag style="text-align: center; width: 50px">
       // to
       // <tag style={{textAlign: 'center', width: '50px'}}>
-      if (path.node.name.name === 'style') {
-        const csso = cssToObj(path.node.value.value);
+      if (originalName.name === 'style') {
+        const csso = cssToObj(node.value.value);
         const properties = Object.keys(csso).map(prop => t.objectProperty(
           t.identifier(hyphenToCamel(prop)),
-          t.stringLiteral(csso[prop])
+          t.stringLiteral(csso[prop]),
         ));
-        path.node.value = t.jSXExpressionContainer(
-          t.objectExpression(properties)
-        );
+        node.value = t.jSXExpressionContainer(t.objectExpression(properties));
       }
 
       // converts
       // <svg stroke-width="5">
       // to
       // <svg strokeWidth="5">
-      // don't convert any custom data-* attributes
-      if (!path.node.name.name.startsWith('data-')) {
-        path.node.name.name = hyphenToCamel(path.node.name.name);
+      // don't convert any custom data-* or aria-* attributes just wrap in quotes
+      if (/^data-|^aria-/.test(originalName.name)) {
+        originalName.name = `'${originalName.name}'`;
+      } else {
+        originalName.name = hyphenToCamel(originalName.name);
       }
     }
   },
@@ -56,14 +58,10 @@ export default t => ({
   // to
   // <svg {...props}>
   // after passing through attributes visitors
-  JSXOpeningElement(path) {
-    if (path.node.name.name.toLowerCase() === 'svg') {
+  JSXOpeningElement({ node: { name, attributes } }) {
+    if (name.name.toLowerCase() === 'svg') {
       // add spread props
-      path.node.attributes.push(
-        t.jSXSpreadAttribute(
-          t.identifier('props')
-        )
-      );
+      attributes.push(t.jSXSpreadAttribute(t.identifier('props')));
     }
   },
 });

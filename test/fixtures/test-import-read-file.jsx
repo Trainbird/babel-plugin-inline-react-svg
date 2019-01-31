@@ -1,7 +1,7 @@
 import React from 'react';
 import MySvg from './close.svg';
 
-export function MyFunctionIcon() {
+export default function MyFunctionIcon() {
   return <MySvg />;
 }
 
